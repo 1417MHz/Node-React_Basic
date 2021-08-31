@@ -5,6 +5,7 @@ const port = 5000
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { User } = require('./models/User')
+const { auth } = require('./middleware/auth')
 
 // application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}))
@@ -24,7 +25,7 @@ mongoose.connect(mongoUrl(), {
 app.get('/', (req, res) => res.send('Hello World! Nice to meet you.'))
 
 // 회원가입
-app.post('/register', (req, res) => {
+app.post('/api/user/register', (req, res) => {
     // 회원 가입시 필요한 정보들을 client에서 가져오면 그것들을 DB에 넣어준다.
     const user = new User(req.body)
     user.save((err, userInfo) => {
@@ -36,7 +37,7 @@ app.post('/register', (req, res) => {
 })
 
 // 로그인
-app.post('/login', (req, res) => {
+app.post('/api/user/login', (req, res) => {
     // 1. 요청된 이메일이 DB에 있는지 확인한다
     User.findOne({ email: req.body.email }, (err, user) => {
         if(!user) {
@@ -61,4 +62,32 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+// 유저 인증
+app.get('/api/user/auth', auth, (req, res) => {
+    // 이 과정까지 왔다는 말은 인증 True 라는 말
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+    })
+})
+
+// 로그아웃
+// 로그아웃 하려는 유저를 DB에서 찾아서 그 유저의 토큰을 지운다.
+app.get('/api/user/logout', auth, (req, res) => {
+    User.findOneAndUpdate({ _id: req.user._id }, { token: "" },
+        (err, user) => { // DB에서 유저의 토큰을 지우면 인증이 풀리게 됨
+            if (err) {return res.json({ success: false, err })}
+            return res.status(200).send({
+                success: true
+            })
+        })
+})
+
+
+app.listen(port, () => console.log(`Listening on port :${port}`))

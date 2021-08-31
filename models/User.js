@@ -60,11 +60,24 @@ userSchema.methods.comparePassword = function(plainPassword, cb) {
 userSchema.methods.generateToken = function(cb) {
     var user = this
     // jsonwebtoken을 이용해서 토큰을 생성하기
-    var token = jwt.sign(user._id.toHexString(), "secretToken") // user._id + 'secretToken" = Token
+    var token = jwt.sign(user._id.toHexString(), 'secretToken') // user._id + 'secretToken" = Token
     user.token = token
     user.save(function(err, user) {
         if(err) { return cb(err) } // 에러가 발생할 경우
         cb(null, user) // 에러가 발생하지 않을 경우 user정보를 전달
+    })
+}
+
+userSchema.statics.findByToken = function(token, cb) {
+    var user = this
+    // 토큰을 decode
+    jwt.verify(token, 'secretToken', function(err, decoded) { // decoded = user._id
+        // 유저 아이디를 이용해서 유저를 찾은 다음 
+        // 클라이언트에서 가져온 토큰과 DB에서 보관된 토큰이 일치한지 확인
+        user.findOne({"_id": decoded, "token": token}, function(err, user) {
+            if(err) { return cb(err) }
+            cb(null, user)
+        })
     })
 }
 
