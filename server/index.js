@@ -1,7 +1,6 @@
 const mongoUrl = require('./mongo') // MongoDB 연결을 위한 URL
 const express = require('express') // 라이브러리 첨부
 const app = express() // 라이브러리 객체 만들기
-const port = 5000
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { User } = require('./models/User')
@@ -23,6 +22,10 @@ mongoose.connect(mongoUrl(), {
 .catch(err => console.log(err))
 
 app.get('/', (req, res) => res.send('Hello World! Nice to meet you.'))
+
+app.get('/api/hello', (req, res) => {
+    res.send("안녕하세요~")
+})
 
 // 회원가입
 app.post('/api/user/register', (req, res) => {
@@ -89,5 +92,5 @@ app.get('/api/user/logout', auth, (req, res) => {
         })
 })
 
-
+const port = 5000
 app.listen(port, () => console.log(`Listening on port :${port}`))

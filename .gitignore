@@ -1,2 +1,14 @@
 /node_modules
+/server/node_modules
+/client/node_modules
+
+# MongoDB connection
 /server/mongo.js
+
+# testing
+/client/coverage
+
+# production
+/client/build
+
+/client/npm-debug.log*
