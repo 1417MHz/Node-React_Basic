@@ -8,6 +8,7 @@ import LoginPage from './components/views/LoginPage/LoginPage.js';
 import RegisterPage from './components/views/RegisterPage/RegisterPage.js';
 // import NavBar from './components/views/NavBar/NavBar.js';
 // import Footer from './components/views/Footer/Footer.js';
+import UserAuth from './hoc/auth.js';
 import './App.css';
 
 function App() {
@@ -15,9 +16,9 @@ function App() {
     <Router>
       <div>
         <Switch>
-          <Route exact path = "/" component = {LandingPage} />
-          <Route exact path = "/login" component = {LoginPage} />
-          <Route exact path = "/register" component = {RegisterPage} />
+          <Route exact path = "/" component = {UserAuth(LandingPage, null)} />
+          <Route exact path = "/login" component = {UserAuth(LoginPage, false)} />
+          <Route exact path = "/register" component = {UserAuth(RegisterPage, false)} />
         </Switch>
       </div>
     </Router>
